@@ -62,3 +62,5 @@ export const handleErrorMessages = (errors) => {
   }
   return message; // ✅ Fix: actually use the variable
 };
+
+export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
