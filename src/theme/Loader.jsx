@@ -1,0 +1,11 @@
+const Loader = ({ overlay }) => {
+  if (!overlay) return <div>Loading...</div>;
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="p-4 bg-white rounded shadow">Loading...</div>
+    </div>
+  );
+};
+
+export default Loader;
