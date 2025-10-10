@@ -15,10 +15,30 @@ const TextEditorArea = ({ setAudioHistory }) => {
   const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
   const estimatedTime = Math.ceil(wordCount / 150);
 
-  const handleSpeak = (content) => {
+  const handleSpeak = (content, onAudioGenerated) => {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(content);
-    utterance.onend = () => setIsPlaying(false);
+
+    // Audio context to capture audio
+    const audioContext = new AudioContext();
+    const destination = audioContext.createMediaStreamDestination();
+    const mediaRecorder = new MediaRecorder(destination.stream);
+    const chunks = [];
+
+    mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(chunks, { type: "audio/mp3" });
+      const audioUrl = URL.createObjectURL(blob);
+
+      if (onAudioGenerated) onAudioGenerated(audioUrl);
+    };
+
+    utterance.onend = () => {
+      mediaRecorder.stop();
+      setIsPlaying(false);
+    };
+
+    mediaRecorder.start();
     window.speechSynthesis.speak(utterance);
     utteranceRef.current = utterance;
     setIsPlaying(true);
@@ -26,19 +46,21 @@ const TextEditorArea = ({ setAudioHistory }) => {
 
   const handleGenerate = () => {
     if (!text.trim()) return;
-    handleSpeak(text);
 
-    const newAudio = {
-      id: Date.now(),
-      title: text.substring(0, 20) + (text.length > 20 ? "..." : ""),
-      text,
-      voice: "Default",
-      duration: `${estimatedTime}m`,
-      format: "mp3",
-      date: new Date().toLocaleString(),
-    };
+    handleSpeak(text, (audioUrl) => {
+      const newAudio = {
+        id: Date.now(),
+        title: text.substring(0, 20) + (text.length > 20 ? "..." : ""),
+        text,
+        voice: "Default",
+        duration: `${estimatedTime}m`,
+        format: "mp3",
+        date: new Date().toLocaleString(),
+        audioUrl,
+      };
 
-    setAudioHistory((prev) => [...prev, newAudio]);
+      setAudioHistory((prev) => [...prev, newAudio]);
+    });
   };
 
   const handleChange = (e) => {

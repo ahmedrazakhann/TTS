@@ -1,4 +1,4 @@
-import { Download, Play } from "lucide-react";
+import { Play } from "lucide-react";
 
 const ActionButtons = ({ onGenerate, disabled }) => {
   return (
@@ -11,14 +11,6 @@ const ActionButtons = ({ onGenerate, disabled }) => {
         >
           <Play className="w-5 h-5" />
           Generate Audio
-        </button>
-
-        <button
-          disabled={disabled}
-          className="flex items-center justify-center gap-2 px-6 py-4 bg-gray-700 hover:bg-gray-800 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <Download className="w-5 h-5" />
-          Download
         </button>
       </div>
     </div>

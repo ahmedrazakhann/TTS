@@ -20,7 +20,6 @@ export default defineConfig({
     tailwindcss(),
   ],
   build: {
-    outDir: "build",
     emptyOutDir: true,
   },
   server: {

@@ -11,7 +11,6 @@ import { useState } from "react";
 
 const AudioLibrary = ({ audioHistory, setAudioHistory }) => {
   const [playingId, setPlayingId] = useState(null);
-
   const handlePlay = (audio) => {
     if (playingId === audio.id) {
       window.speechSynthesis.cancel();
@@ -33,6 +32,34 @@ const AudioLibrary = ({ audioHistory, setAudioHistory }) => {
       window.speechSynthesis.cancel();
       setPlayingId(null);
     }
+  };
+
+  const handleDownload = (audio) => {
+    const utterance = new SpeechSynthesisUtterance(audio.text);
+
+    const synth = window.speechSynthesis;
+    const audioContext = new (window.AudioContext ||
+      window.webkitAudioContext)();
+    const dest = audioContext.createMediaStreamDestination();
+    const recorder = new MediaRecorder(dest.stream);
+    const chunks = [];
+
+    recorder.ondataavailable = (e) => chunks.push(e.data);
+    recorder.onstop = () => {
+      const blob = new Blob(chunks, { type: "audio/wav" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `audio_${audio.id}.wav`;
+      a.click();
+    };
+
+    recorder.start();
+    synth.speak(utterance);
+
+    utterance.onend = () => {
+      recorder.stop();
+    };
   };
 
   return (
@@ -105,9 +132,8 @@ const AudioLibrary = ({ audioHistory, setAudioHistory }) => {
 
                   <div className="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
-                      onClick={() => alert("Download feature")}
+                      onClick={() => handleDownload(audio)}
                       className="p-1.5 hover:bg-gray-200 rounded-lg transition-colors"
-                      title="Download"
                     >
                       <Download className="w-4 h-4 text-gray-600" />
                     </button>
