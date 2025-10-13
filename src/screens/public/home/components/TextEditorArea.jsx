@@ -100,7 +100,11 @@ const TextEditorArea = ({ setAudioHistory }) => {
         clearText={clearText}
       />
 
-      <ActionButtons onGenerate={handleGenerate} disabled={!text.trim()} />
+      <ActionButtons
+        onGenerate={handleGenerate}
+        disabled={!text.trim()}
+        isPlaying={isPlaying}
+      />
     </div>
   );
 };
